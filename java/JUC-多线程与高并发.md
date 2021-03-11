@@ -30,7 +30,7 @@
 
 总共分为6个状态，new、Runnable、Blocked、Waiting、TimedWaiting、Teminated
 
-![image-20210307032724553](images/image-20210307032724553.png)
+![image-20210307032724553](JUC-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E9%AB%98%E5%B9%B6%E5%8F%91.assets/image-20210307032724553.png)
 
 > `Runnable`？
 
