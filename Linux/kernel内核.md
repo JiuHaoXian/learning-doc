@@ -1,10 +1,14 @@
-# kernel
+# 内核kernel
+
+## FD（file descriptor） 文件描述符
+
+> 百度百科
+>
+> [内核](https://baike.baidu.com/item/内核/108410)（kernel）利用文件描述符（file descriptor）来访问文件。文件描述符是[非负整数](https://baike.baidu.com/item/非负整数/2951833)。打开现存文件或新建文件时，内核会返回一个文件描述符。读写文件也需要使用文件描述符来指定待读写的文件。
 
 
 
-## FD 文件描述符
-
-### Linux的IO模型（BIO bloack）
+## Linux的IO模型（BIO bloack）
 
 * ##### 早先的阻塞IO（BIO, Blocking IO）
 
@@ -22,13 +26,13 @@
 
 
 
-* 共享空间（MMap）
+* ##### 共享空间-多路复用非阻塞IO（MMap）
 
-* 零拷贝（sendfile）
+* ##### 零拷贝（sendfile）
 
   通过将原本read与write操作频繁对内核进行交互，改为通过sendfile？接口**？，直接进行文件读写操作。
 
-* KafKa
+* ##### KafKa
 
   通过将mmap（共享空间）+sendfile（零拷贝）组合使用实现。
 
@@ -36,13 +40,15 @@
 
 <left><img src="assets/image-20210313053323850.png" alt="image-20210313053323850" style="zoom:40%;" /><img src="assets/image-20210313053849657.png" alt="image-20210313053849657" style="zoom:35%;" /><img src="assets/image-20210313054405742.png" alt="image-20210313054405742" style="zoom:35%;" /><left>
 
-* Nignx
+* ##### Nignx
 
-  ![image-20210313064121992](assets/image-20210313064121992.png)
+  <img src="assets/image-20210313064121992.png" alt="image-20210313064121992" style="zoom:67%;" />
 
-> 
->
+
+
 > 参考文献
 >
-> http://www.52im.net/thread-306-1-1.html
+> [聊聊Linux 五种IO模型](https://www.jianshu.com/p/486b0965c296)
+>
+> [Java新一代网络编程模型AIO原理及Linux系统AIO介绍](http://www.52im.net/thread-306-1-1.html)
 
