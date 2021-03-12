@@ -1,14 +1,14 @@
-#JVM调优实战
+# JVM调优实战
 
 > 在jvm中有很多的参数可以进行设置，这样可以让jvm在各种环境中都能够高效的运行。绝大部分的参数保持默认即可。
 
 
 
-##JVM调优语法
+## JVM调优语法
 
-###三种参数类型
+### 三种参数类型
 
-####标准参数
+#### 标准参数
 
 - > ```-help```
 
@@ -28,7 +28,7 @@
 
 
 
-####-XX(非标准参数,使用率较高)
+#### -XX(非标准参数,使用率较高)
 
 - > ```-XX:newSize```
 
@@ -99,7 +99,7 @@ Loaded Bytes     Unloaded  Bytes   Time
 
 ```
 
-######说明：
+###### 说明：
 
 * Loaded：加载class的数量
 
@@ -113,7 +113,7 @@ Loaded Bytes     Unloaded  Bytes   Time
 
 
 
-#####查看编译统计
+##### 查看编译统计
 
 ```shell
 F:\t>jstat -compiler 12076
@@ -123,7 +123,7 @@ Compiled Failed Invalid  Time     FailedType FailedMethod
   3115    0     0      3.43     0
 ```
 
-######说明：
+###### 说明：
 
 * Compiled：编译数量
 
@@ -139,9 +139,9 @@ Compiled Failed Invalid  Time     FailedType FailedMethod
 
 
 
-#####垃圾回收统计
+##### 垃圾回收统计
 
-######说明：
+###### 说明：
 
 S0C：第一个Survivor区的大小（KB）
 
@@ -181,11 +181,11 @@ GCT：垃圾回收消耗总时间
 
 
 
-####Jmap的使用以及内存溢出分析：
+#### Jmap的使用以及内存溢出分析：
 
 > 前面通过jstat可以对jvm堆的内存进行统计分析，而jmap可以获取到更加详细的内容，如：内存使用情况的汇总、对内存溢出的定位与分析。
 
-######查看内存使用情况
+###### 查看内存使用情况
 
 ```
 	jmap -heap 6219
@@ -193,7 +193,7 @@ GCT：垃圾回收消耗总时间
 
 
 
-#####查看内存中对象数量及大小
+##### 查看内存中对象数量及大小
 
 ```shell
 	jmap -histo <pid> | more   #查看所有对象，包括活跃以及非活跃的
@@ -203,7 +203,7 @@ GCT：垃圾回收消耗总时间
 
 
 
-#####将内存使用情况dump到文件中
+##### 将内存使用情况dump到文件中
 
 ```shell
 	jmap -dump:format=b,file=dumpFileName <pid>	#用法
@@ -213,7 +213,7 @@ GCT：垃圾回收消耗总时间
 
 
 
-#####通过jhat对dump文件进行分析
+##### 通过jhat对dump文件进行分析
 
 ```shell
 #用法：
@@ -245,9 +245,9 @@ Server is ready.
 
 
 
-####Jmp使用以及内存溢出分析
+#### Jmp使用以及内存溢出分析
 
-#####使用MAT工具对内存溢出的定位与分析
+##### 使用MAT工具对内存溢出的定位与分析
 
 > 内存溢出在实际的生产环境中经常会遇到，比如，不断的将数据写入到一个集合中，出现了死循环，读取超大的文件等等，都可能会造成内存溢出。
 
@@ -257,7 +257,7 @@ Server is ready.
 
 
 
-#####Jsatck的使用
+##### Jsatck的使用
 
 > 有些时候我们需要查看下jvm中的线程执行情况，比如，发现服务器的CPU的负载突然增高了、出现了死锁、死循环等，我们该如何分析呢？
 
@@ -272,7 +272,7 @@ Server is ready.
 
 
 
-#####VisualVM工具的使用
+##### VisualVM工具的使用
 
 > VisualVM，能够监控线程，内存情况，查看方法的CPU时间和内存中的对 象，已被GC的对象，反向查看分配的堆栈(如100个String对象分别由哪几个对象分配出来的)。VisualVM使用简单，几乎0配置，功能还是比较丰富的，几乎囊括了其它JDK自带命令的所有功能。
 
@@ -288,7 +288,7 @@ Server is ready.
 
 
 
-#####监控远程JVM
+##### 监控远程JVM
 
 > VisualVM不仅是可以监控本地jvm进程，还可以监控远程的jvm进程，需要借助于JMX技术实现。
 
@@ -298,9 +298,9 @@ Server is ready.
 
 
 
-#####可视化GC日志分析工具
+##### 可视化GC日志分析工具
 
-1. ######GC日志输出参数
+1. ###### GC日志输出参数
 
 > 前面通过-XX:+PrintGCDetails可以对GC日志进行打印，我们就可以在控制台查看，这样虽然可以查看GC的信息，但是并不直观，可以借助于第三方的GC日志分析工具进行查看。
 
@@ -338,7 +338,7 @@ Server is ready.
 
 
 
-####对于**JVM**调优的建议：
+#### 对于**JVM**调优的建议：
 
 - 生产环境的JVM一定要进行参数设定，不能全部默认上生产。
 - 对于参数的设定，不能拍脑袋，需要通过实际并发情况或压力测试得出结论。
@@ -349,9 +349,9 @@ Server is ready.
 
 
 
-####Tomcat8优化
+#### Tomcat8优化
 
-1. #####禁用AJP连接
+1. ##### 禁用AJP连接
 
 > AJP（Apache JServer Protocol） AJPv13协议是面向包的。WEB服务器和Servlet容器通过TCP连接来交互；为了节省SOCKET创建的昂贵代价，WEB服务器会尝试维护一个永久TCP连接到servlet容器，并且在多个请求和响应周期过程会重用连接。
 
@@ -363,7 +363,7 @@ Server is ready.
 <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
 ```
 
-2. #####执行器（线程池）
+2. ##### 执行器（线程池）
 
 在tomcat中每一个用户请求都是一个线程，所以可以使用线程池提高性能。
 
@@ -379,7 +379,7 @@ Server is ready.
 
    > 推荐使用nio，不过，在tomcat8中有最新的nio2，速度更快，建议使用nio2.
 
-4. #####设置nio2
+4. ##### 设置nio2
 
 ```shell
 	<Connector executor="tomcatThreadPool" port="8080" protocol="org.apache.coyote.http11.Http11Nio2Protocol" connectionTimeout="20000" 		redirectPort="8443" />
@@ -387,7 +387,7 @@ Server is ready.
 
 
 
-####代码优化建议
+#### 代码优化建议
 
 1. 尽可能使用局部变量。
 2. 尽量减少对变量的重复计算
