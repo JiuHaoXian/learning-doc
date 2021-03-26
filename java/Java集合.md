@@ -8,17 +8,47 @@ list、set实现了Collection接口
 
 
 
+#### 常见问题
+
+##### 集合类取并集取交集？
+
+```java
+    List<String> intersection = list1.stream().filter(item -> list2.contains(item)).collect(toList());
+    System.out.println("---交集 intersection---");
+    intersection.parallelStream().forEach(System.out :: println);
+```
+
+
+
+##### jdk1.7与jdk1.8中HashMap区别
+
+1. 1.7是数组+链表，1.8是数组+链表+红黑树
+2. jdk1.7中当哈希表为空时，会先调用inflateTable()初始化一个数组；而1.8则是直接调用resize()扩容;
+3. 1.7是在头部插入，1.8是尾插
+4. 1.7是hash值是直接hashCode，1.8是无符号右移+异或运算，保留了高低位特征，使元素更均匀，降低哈希碰撞。
+5. 扩容时1.8会保持原链表的顺序，而1.7会颠倒链表的顺序；而且1.8是在元素插入后检测是否需要扩容，1.7则是在元素插入前；
+6.  jdk1.8是扩容时通过hash&cap==0将链表分散，无需改变hash值，而1.7是通过更新hashSeed来修改hash值达到分散的目的；
+7. 1.7中是只要不小于阈值就直接扩容2倍；而1.8的扩容策略会更优化，当数组容量未达到64时，以2倍进行扩容，超过64之后若桶中元素个数不小于7就将链表转换为红黑树，但如果红黑树中的元素个数小于6就会还原为链表，当红黑树中元素不小于32的时候才会再次扩容。
+
+##### hashmap和hashlist的扩容机制？
+
+arrayList：默认10，扩容为1.5倍
+
+hashmap：16，0.75时扩容，2倍
+
+
+
+
+
+
+
 #### 常用集合的分类：
-
-
-
-
 
 ### List
 
 > 可以重复，通过索引取出加入数据，顺序与插入顺序一致，元素可以为NULL
 
-* ArrayList： （**数组、不安全**）
+* ArrayList： （**==数组==、不安全**）
   * **数组**  结构array，查询速度快，增删改慢。
   * 默认大小为  **10 ** 扩容为增加当前容量的50%。
   * 线程不安全
@@ -26,7 +56,7 @@ list、set实现了Collection接口
 
 
 
-* Vector：（**数组、安全**）
+* Vector：（**数组、安全**）向量
   * **数组**  结构array，与ArrayList相同，查询速度快，增删改慢；
 
   * 扩容为增加当前容量的100%。
@@ -49,9 +79,9 @@ list、set实现了Collection接口
 
 
 
-* LinkedList： （**链表、不安全**）
+* LinkedList： （**==链表==、不安全**）
 
-  *  **链表**  结构，增删速度快，查询稍慢；
+  *  **链表**  结构，增删速度快，查询稍慢；指针指向后一个元素
   
   
 
@@ -59,7 +89,7 @@ list、set实现了Collection接口
 
 > 数据无序且唯一，实现类都不是线程安全的类，解决方案：使用sysnchronizedSet对象
 >
-> ``Set  set = Collections.sysnchronizedSet`
+> `Set  set = Collections.sysnchronizedSet`
 
 * HashSet：（**哈希表、无序、不可重复、不安全、可以为空**）
   * 通过哈希表（散列/hash）实现，是Set接口（Set接口是继承了Collection接口的）最常用的实现类
@@ -69,11 +99,11 @@ list、set实现了Collection接口
     * 2. hashCode值相同。要求：要求存在在哈希表中的对象元素都得覆盖equals和hashCode方法。
     
   * LinkedHashSet：
-    * 继承了HashSet类，哈希表+链表的数据结构，但因为多加了一种数据结构，所以效率较低，不建议使用，如果要求一个集合急要保证元素不重复，也需要记录元素的先后添加顺序，才选择使用LinkedHashSet
+    * 继承了HashSet类，==哈希表+链表==的数据结构，但因为多加了一种数据结构，所以效率较低，不建议使用，如果要求一个集合既要保证元素不重复，也需要记录元素的先后添加顺序，才选择使用LinkedHashSet
 
 
 
-* TreeSet：（**红黑树、有序、不可重复、安全、不可以为空**）
+* TreeSet：（**==红黑树==、有序、不可重复、安全、不可以为空**）
   * Set接口的实现类，也拥有set接口的一般特性，但是不同的是他也实现了SortSet接口，底层通过**红黑树**（Red-Black tree）
     * 红黑树：红黑树就是满足一下红黑性质的二叉搜索树
       * ①每个节点是黑色或者红色
@@ -93,20 +123,20 @@ list、set实现了Collection接口
 > Map(映射)是一种键值对映射集合，Map支持多级映射，Map中的键是唯一的，但值可以不唯一，Map集合有两种实现
 >
 
-* HashMap：（**数组+链表+红黑树、无序、不安全、可以为Null**）
+* HashMap：（**==数组+链表+红黑树==、无序、不安全、可以为Null**）
   * 底层通过**数组+链表+红黑树**实现，默认容量为8，在jdk1.8之前是数组+链表，在jdk1.8之后，当位桶的数据超过阈值（8）的时候，就会采用红黑树来存储该位桶的数据
   * 默认大小为  **16**  ，负载因子为0.75（泊松分布），扩容位2的n次幂
   * 插入元素后才判断该不该扩容
   * 计算index方法：index = hash & (tab.length – 1)
   * 哈希冲突 对每个元素执行equals()比较
-  * 当数组大小大于  **64**，且链表大于  **8**  的时候使用红黑树
+  * ==当数组大小大于  **64**==，且==链表大于  **8**==  的时候使用红黑树
   * key-value可以为null
   * 线程不安全
   * HashMap，它和HashSet都是利用哈希表来完成的，区别其实就是在哈希表的每个桶中，HashSet只有key，而HashMap在每个key上挂了一个value；
 
 
 
-* LinkedHashMap：（**数组+链表+双向链表、有序、不安全、可以为空**）
+* LinkedHashMap：（**==数组+链表+双向链表==、有序、不安全、可以为空**）
   * 继承与HashMap，在其基础上维护了一个双向链表
   * 通过双向链表实现插入有序
   * 因为遍历的时候用的是双向链表遍历，所以不回影响性能
@@ -115,7 +145,7 @@ list、set实现了Collection接口
 
 
 
-* HashTable：（**哈希表、无序、安全、不可为空**）
+* HashTable：（**==哈希表==、无序、安全、不可为空**）
 
   * Hashtable继承Map接口，实现一个key-value映射的哈希表。
   * key-value不可以为null
@@ -126,7 +156,7 @@ list、set实现了Collection接口
 
 
 
-* TreeMap：（**红黑树、有序、不安全、值可以为空**）
+* TreeMap：（**==红黑树==、有序、不安全、值可以为空**）
 
   * 底层通过**红黑树**（Red-Black tree）实现，实现了SortMap接口，和TreeSet一样也能实现自然排序和客户化排序两种排序方式
   * 继承于AbstractMap，是一个有序的key-value集合，
@@ -135,7 +165,7 @@ list、set实现了Collection接口
   * TreeMap 实现了java.io.Serializable接口，意味着它支持序列化。
   * TreeMap，它实现了SortMap接口，也就是使用了**红黑树**的数据结构。
   * TreeMap是非同步的。 它的iterator 方法返回的迭代器是fail-fastl的。
-  * 自然排序和客户化排序
+  * ==自然排序和客户化排序==
 
 
 
@@ -143,7 +173,7 @@ list、set实现了Collection接口
 
   * 通过部分加锁（分段锁）或利用CAS算法实现同步
   * 扩容：段内扩容（段内元素超过该段对应Entry数组长度的75%触发扩容，不会对整个Map进行扩容），插入前检测需不需要扩容，有效避免无效扩容
-  * 1.7使用Segment+HashEntry分段锁的方式实现
+  * 1.7使用Segment+HashEntry==分段锁==的方式实现
     * 1.7版本的ConcurrentHashMap采用分段锁机制，里面包含一个Segment数组（Segment继承于ReentrantLock），Segment则包含HashEntry的数组，HashEntry本身就是一个链表的结构，具有保存key、value的能力能指向下一个节点的指针。
   * 实际上就是相当于每个Segment都是一个HashMap，默认的Segment长度是16，也就是支持16个线程的并发写，Segment之间相互不会受到影响。
   * 1.8则抛弃了Segment，改为使用CAS+synchronized+Node实现，同样也加入了红黑树，避免链表过长导致性能的问题。
