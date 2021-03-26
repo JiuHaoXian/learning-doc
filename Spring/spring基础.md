@@ -49,6 +49,14 @@ private ProductInterface productServer;
 
 
 
+### 自动配置的原理
+
+https://blog.csdn.net/u014745069/article/details/83820511
+
+ @SpringBootApplication是一个复合注解或派生注解，在@SpringBootApplication中有一个注解@EnableAutoConfiguration，翻译成人话就是**开启自动配置**， 而这个注解也是一个派生注解，其中的关键功能由@Import提供，其导入的AutoConfigurationImportSelector的selectImports()方法通过SpringFactoriesLoader.loadFactoryNames()扫描所有具有META-INF/spring.factories的jar包。spring-boot-autoconfigure-x.x.x.x.jar里就有一个这样的spring.factories文件。这个spring.factories文件也是一组一组的key=value的形式，其中一个key是EnableAutoConfiguration类的全类名，而它的value是一个xxxxAutoConfiguration的类名的列表，这些类名以逗号分隔；
+
+这个@EnableAutoConfiguration注解通过@SpringBootApplication被间接的标记在了Spring Boot的启动类上。在SpringApplication.run(...)的内部就会执行selectImports()方法，找到所有JavaConfig自动配置类的全限定名对应的class，然后将所有自动配置类加载到Spring容器中
+
 
 
 ## SpringBean的生命周期管理？
@@ -72,50 +80,45 @@ private ProductInterface productServer;
 
 比如说我们可以在Spring所管理的Bean做一些描述，比如@Scope、@Lazy、@DependsOn等等
 
-流程：
+##### 流程：
 
-Spring在启动的时候会去扫描在XML、JAVAconfig、注解中需要被Spring管理的Bean信息，随后会将这些信息封装成BeanDefinition，最后把他们放到一个BeanDefinitionMap中，这个Map的key是BeanName，value是BeanDefinition对象，到这里就是吧定力的元数据加载起来，单真正的对象还没实例化
-
-接着会遍历这个BeanDefinitionMap，执行BeanFactoryPostProcessor这个Bean工厂的后置处理逻辑
-
-比如我们我们平时定义的占位符，就是通过BeanFactoryPostProcessor的子类PropertyPlaceholderConfigurer进行注入的
-
-当然这里我们可以使用我们自定义的BeanFactoryPostProcessor来对我们定义好的Bean元数据进行获取和修改。很少用
-
-后置处理器执行完了就到了实例化对象了
-
-在Spring里是通过反射来实现实例化对象的，一般会反射选择合适的构造器来实例化对象，但是这里实例化只是创建对象，对象具体的属性还是没有实例化的，比如我的对象是 用户service，那它依赖的 SendService对象这时候还是null的
-
-所以下一步就是注入对象的属性，再往下就是初始化工作了
-
-首先会判断该Bean是否实现了Aware相关的接口，如果存在就会填充相关资源
-
-Aware的相关接口处理完就会到BeanPostProcessor后置处理器，BeanPostProcessor后置处理器有两个方法，before 、after，这个BeanPostProcessor后置处理器是AOP实现的关键，关键子类是AnnottationAwareAspectJAutoProxyCreator
-
-此时会执行BeanPostProcessor相关子类的before方法，
-
-执行完后，接着会执行init相关方法，比如	@PostConstruct、实现InitializingBean接口、定义的init-method方法
-
-去他们官网查看了他们的执行顺序分别是：@PostConstruct、实现了InitializingBean接口以及init-method方法
-
-等到init方法执行完之后就会执行BeanPostProcessor的after方法，此时基本流程走完，我们就可以获取到对象去使用了
-
-销毁就去看有没有配置相关destroy方法，执行就完事了
+1. Spring在启动的时候会去==扫描在XML、JAVAconfig、注解==中需要被Spring管理的==Bean信息==，随后会将这些信息封装成==BeanDefinition==，最后把他们放到一个==BeanDefinitionMap==中，这个Map的key是BeanName，value是BeanDefinition对象，到这里就是吧定义的==元数据==加载起来，真正的对象还没实例化
 
 
 
+2. 接着会遍历这个BeanDefinitionMap，执行==BeanFactoryPostProcessor这个Bean工厂的后置处理器==
+
+   //比如我们我们平时定义的占位符，就是通过BeanFactoryPostProcessor的子类PropertyPlaceholderConfigurer进行注入的
+
+   //当然这里我们可以使用我们自定义的BeanFactoryPostProcessor来对我们定义好的Bean元数据进行获取和修改。很少用
+
+   
+
+3. 后置处理器执行完了就到了实例化对象了
+
+   ==在Spring里是通过反射来实现实例化对象的==，一般会反射选择合适的构造器来实例化对象，但是这里实例化只是创建对象，对象具体的属性还是没有实例化的，比如我的对象是 用户service，那它依赖的 SendService对象这时候还是null的
 
 
-1. Spring启动，查找并加载需要被Spring管理的bean，进行Bean的实例化
-2. Bean实例化后对将Bean的引入和值注入到Bean的属性中
-3. 如果Bean实现了BeanNameAware接口的话，Spring将Bean的Id传递给setBeanName()方法
-4. 如果Bean实现了BeanFactoryAware接口的话，Spring将调用setBeanFactory()方法，将BeanFactory容器实例传入
-5. 如果Bean实现了ApplicationContextAware接口的话，Spring将调用Bean的setApplicationContext()方法，将bean所在应用上下文引用传入进来。
-6. 如果Bean实现了BeanPostProcessor接口，Spring就将调用他们的postProcessBeforeInitialization()方法。
-7. 如果Bean 实现了InitializingBean接口，Spring将调用他们的afterPropertiesSet()方法。类似的，如果bean使用init-method声明了初始化方法，该方法也会被调用
-8. 如果Bean 实现了BeanPostProcessor接口，Spring就将调用他们的postProcessAfterInitialization()方法。
-9. 此时，Bean已经准备就绪，可以被应用程序使用了。他们将一直驻留在应用上下文中，直到应用上下文被销毁。
-10. 如果bean实现了DisposableBean接口，Spring将调用它的destory()接口方法，同样，如果bean使用了destory-method 声明销毁方法，该方法也会被调用。
+
+4. 所以下一步就是注入对象的属性，再往下就是初始化工作了
+
+   首先会判断该Bean是否实现了Aware相关的接口，如果存在就会填充相关资源。
+
+   
+
+5. Aware的相关接口处理完就会到BeanPostProcessor后置处理器，BeanPostProcessor后置处理器有两个方法，before 、after，
+
+   //这个BeanPostProcessor后置处理器是AOP实现的关键，关键子类是AnnottationAwareAspectJAutoProxyCreator
+
+   此时会执行BeanPostProcessor相关子类的before方法，执行完后，接着会执行init相关方法，
+
+   //比如	@PostConstruct、实现InitializingBean接口、定义的init-method方法,去他们官网查看了他们的执行顺序分别是：@PostConstruct、实现了InitializingBean接口以及init-method方法
+
+   等到init方法执行完之后就会执行BeanPostProcessor的after方法。此时基本流程走完，我们就可以获取到对象去使用了
+
+   
+
+6. 销毁就去看有没有配置相关destroy方法，执行就完事了
 
 
 
@@ -165,3 +168,38 @@ B对象返回到A的属性注入的方法上，完成A的创建。
 
 
 
+
+
+### BeanFactory和ApplicationContext的区别？
+
+**BeanFactory：**
+
+是Spring里面最低层的接口，提供了最简单的容器的功能，只提供了==实例化对象和拿对象==的功能；
+
+ 
+
+**ApplicationContext：**
+
+应用上下文，继承BeanFactory接口，它是Spring的一各更高级的容器，提供了更多的有用的功能；
+
+1) 国际化（MessageSource）
+
+2) 访问资源，如URL和文件（ResourceLoader）
+
+3) 载入多个（有继承关系）上下文 ，使得每一个上下文都专注于一个特定的层次，比如应用的web层  
+
+4) 消息发送、响应机制（ApplicationEventPublisher）
+
+5) AOP（拦截器）
+
+
+
+**两者装载bean的区别**
+
+BeanFactory在启动的时候不会去实例化Bean，只有从容器中拿Bean的时候才会去实例化
+
+ApplicationContext在启动的时候就把所有的Bean全部实例化了。它还可以为Bean配置lazy-init=true来让Bean延迟实例化
+
+
+
+###### 建议web应用，在启动的时候就把所有的Bean都加载了。（把费时的操作放到系统启动中完成） 

@@ -6,45 +6,37 @@
 
 ## JVM调优语法
 
+
+
 ### 三种参数类型
 
-#### 标准参数
+##### 标准参数
 
-- > ```-help```
-
-- > ```-version```
-
-- 
-
-### -X(非标准参数)
-
-- > ```-Xint```
-
-- > ```-Xcomp```
-
-- \- X参数
-
-- jvm的-X参数是非标准参数，在不同版本的jvm中，参数可能会有所不同，可以通过java -X查看非标准参数。
+> ```-help```  ```-version```
 
 
 
-#### -XX(非标准参数,使用率较高)
+##### 非标准参数（-X）
 
-- > ```-XX:newSize```
+> ```-Xint```	```-Xcomp```
+>
+> jvm的-X参数是非标准参数，在不同版本的jvm中，参数可能会有所不同，可以通过java -X查看非标准参数。
 
-- > ```-XX:+UseSerialGC```
+```
+-Xms与-Xmx分别是设置jvm的堆内存的初始大小和最大 大小。
+-Xmx2048m：等价于-XX:MaxHeapSize，设置JVM最大堆内存为2048M。
+-Xms512m：等价于-XX:InitialHeapSize，设置JVM初始堆内存为512M。
+```
 
-- 
 
-```-XX```
 
-概述：非标准参数，主要用于jvm的调优和debug操作。
+##### 非标准参数（-XX,使用率较高，不稳定）
 
-使用：
+主要用于jvm的调优和debug操作。适当的调整jvm的内存大小，可以充分利用服务器资源，让程序跑的更快。
 
 - boolean类型
 
-- > 语法：```-XX:[+-] ```表示启用或禁用属性
+  > 语法：```-XX:[+-] ```表示启用或禁用属性
   >
   > 例子：```-XX:+DisableExplicitGC``` 表示禁用手动调用gc操作，也就是说调用System.gc()无效
 
@@ -54,156 +46,102 @@
   >
   > 例子：```	-XX:NewRatio=4	```表示新生代和老年代的比值为1:4
 
-
-
-```-X参数```
-
--Xms与-Xmx分别是设置jvm的堆内存的初始大小和最大 大小。
-
--Xmx2048m：等价于-XX:MaxHeapSize，设置JVM最大堆内存为2048M。
-
--Xms512m：等价于-XX:InitialHeapSize，设置JVM初始堆内存为512M。
-
-适当的调整jvm的内存大小，可以充分利用服务器资源，让程序跑的更快。
-
-
-
-> 示例：
-
 ```shell
 [root@node01 test]# java -Xms512m -Xmx2048m TestJVM
 itcast
+
+-XX:newSize
+-XX:+UseSerialGC（使用某个GC） 
+-XX:+PrintFlagsFinal(获取正在生效的设置)
 ```
 
 
 
 
 
-> ```jstat```
+
+
+### 常用命令
+
+##### ```jstat```命令：
 
 ```shell
 #jstat命令可以查看堆内存各部分的使用量，以及加载类的数量。命令的格式如下：
 [root@node01 test] jstat [-命令选项] [vmid] [间隔时间/毫秒] [查询次数]
-```
 
-
-
-#####查看class加载统计
-
-```shell
 F:\t>jstat -class 12076
 
 Loaded Bytes     Unloaded  Bytes   Time
-
  5962  10814.2    0   0.0    3.75
-
+ 
+#Loaded：加载class的数量
+#Bytes：所占用空间大小
+#Unloaded：未加载数量
+#Bytes：未加载占用空间
+#Time：时间
 ```
 
-###### 说明：
-
-* Loaded：加载class的数量
-
-* Bytes：所占用空间大小
-
-* Unloaded：未加载数量
-
-* Bytes：未加载占用空间
-
-* Time：时间
-
-
-
-##### 查看编译统计
+###### 查看编译统计
 
 ```shell
 F:\t>jstat -compiler 12076
 
 Compiled Failed Invalid  Time     FailedType FailedMethod
-
-  3115    0     0      3.43     0
+  3115    0     0        3.43     0
+  
+#Compiled：编译数量
+#Failed：失败数量
+#Invalid：不可用数量
+#Time：时间
+#FailedType：失败类型
+#FailedMethod：失败的方法
 ```
-
-###### 说明：
-
-* Compiled：编译数量
-
-* Failed：失败数量
-
-* Invalid：不可用数量
-
-* Time：时间
-
-* FailedType：失败类型
-
-* FailedMethod：失败的方法
 
 
 
 ##### 垃圾回收统计
 
-###### 说明：
-
+```
 S0C：第一个Survivor区的大小（KB）
-
 S1C：第二个Survivor区的大小（KB）
-
 S0U：第一个Survivor区的使用大小（KB）
-
 S1U：第二个Survivor区的使用大小（KB）
-
 EC：Eden区的大小（KB）
-
 EU：Eden区的使用大小（KB）
-
 OC：Old区大小（KB）
-
 OU：Old使用大小（KB）
-
 MC：方法区大小（KB）
-
 MU：方法区使用大小（KB）
-
 CCSC：压缩类空间大小（KB）
-
 CCSU：压缩类空间使用大小（KB）
-
 YGC：年轻代垃圾回收次数
-
 YGCT：年轻代垃圾回收消耗时间
-
 FGC：老年代垃圾回收次数
-
 FGCT：老年代垃圾回收消耗时间
-
 GCT：垃圾回收消耗总时间
+```
 
 
 
-
-
-#### Jmap的使用以及内存溢出分析：
+##### Jmap的使用以及内存溢出分析：
 
 > 前面通过jstat可以对jvm堆的内存进行统计分析，而jmap可以获取到更加详细的内容，如：内存使用情况的汇总、对内存溢出的定位与分析。
 
 ###### 查看内存使用情况
 
 ```
-	jmap -heap 6219
+jmap -heap 6219
 ```
 
-
-
-##### 查看内存中对象数量及大小
+###### 查看内存中对象数量及大小
 
 ```shell
-	jmap -histo <pid> | more   #查看所有对象，包括活跃以及非活跃的
+jmap -histo <pid> | more   #查看所有对象，包括活跃以及非活跃的
 
-  jmap -histo:live <pid> | more	#查看活跃对象 
+jmap -histo:live <pid> | more	#查看活跃对象 
 ```
 
-
-
-##### 将内存使用情况dump到文件中
+###### 将内存使用情况dump到文件中
 
 ```shell
 	jmap -dump:format=b,file=dumpFileName <pid>	#用法
@@ -257,7 +195,7 @@ Server is ready.
 
 
 
-##### Jsatck的使用
+##### Jstack
 
 > 有些时候我们需要查看下jvm中的线程执行情况，比如，发现服务器的CPU的负载突然增高了、出现了死锁、死循环等，我们该如何分析呢？
 
@@ -387,7 +325,7 @@ Server is ready.
 
 
 
-#### 代码优化建议
+## 代码优化建议
 
 1. 尽可能使用局部变量。
 2. 尽量减少对变量的重复计算
