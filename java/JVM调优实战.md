@@ -63,7 +63,11 @@ itcast
 
 ### 常用命令
 
+<<<<<<< HEAD
 ##### ```jstat```命令：查看堆内存各部分的使用量，以及加载类的数量
+=======
+##### ```jstat```命令：
+>>>>>>> 4df259e0e3151344679740ab317073b7b8754dc3
 
 ```shell
 #jstat命令可以查看堆内存各部分的使用量，以及加载类的数量。命令的格式如下：
@@ -102,6 +106,7 @@ Compiled Failed Invalid  Time     FailedType FailedMethod
 ##### 垃圾回收统计
 
 ```
+<<<<<<< HEAD
 S0C：第一个Survivor区的大小（KB）S1C：第二个Survivor区的大小（KB）S0U：第一个Survivor区的使用大小（KB）
 S1U：第二个Survivor区的使用大小（KB）EC：Eden区的大小（KB）EU：Eden区的使用大小（KB）
 OC：Old区大小（KB）OU：Old使用大小（KB）MC：方法区大小（KB）MU：方法区使用大小（KB）CCSC：压缩类空间大小（KB）
@@ -111,6 +116,29 @@ FGCT：老年代垃圾回收消耗时间GCT：垃圾回收消耗总时间
 
 
 
+=======
+S0C：第一个Survivor区的大小（KB）
+S1C：第二个Survivor区的大小（KB）
+S0U：第一个Survivor区的使用大小（KB）
+S1U：第二个Survivor区的使用大小（KB）
+EC：Eden区的大小（KB）
+EU：Eden区的使用大小（KB）
+OC：Old区大小（KB）
+OU：Old使用大小（KB）
+MC：方法区大小（KB）
+MU：方法区使用大小（KB）
+CCSC：压缩类空间大小（KB）
+CCSU：压缩类空间使用大小（KB）
+YGC：年轻代垃圾回收次数
+YGCT：年轻代垃圾回收消耗时间
+FGC：老年代垃圾回收次数
+FGCT：老年代垃圾回收消耗时间
+GCT：垃圾回收消耗总时间
+```
+
+
+
+>>>>>>> 4df259e0e3151344679740ab317073b7b8754dc3
 ##### Jmap的使用以及内存溢出分析：
 
 > 前面通过jstat可以对jvm堆的内存进行统计分析，而j==map可以获取到更加详细的内容==，如：==内存使用情况的汇总==、==对内存溢出的定位与分析==。

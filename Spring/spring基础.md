@@ -81,6 +81,7 @@ https://blog.csdn.net/u014745069/article/details/83820511
 比如说我们可以在Spring所管理的Bean做一些描述，比如@Scope、@Lazy、@DependsOn等等
 
 ##### 流程：
+<<<<<<< HEAD
 
 1. Spring在启动的时候会去==扫描在XML、JAVAconfig、注解==中需要被Spring管理的==Bean信息==，随后会将这些信息封装成==BeanDefinition==，最后把他们放到一个==BeanDefinitionMap==中，这个Map的key是BeanName，value是BeanDefinition对象，到这里就是吧定义的==元数据==加载起来，真正的对象还没实例化
 
@@ -116,6 +117,43 @@ https://blog.csdn.net/u014745069/article/details/83820511
 
    等到init方法执行完之后就会执行BeanPostProcessor的after方法。此时基本流程走完，我们就可以获取到对象去使用了
 
+=======
+
+1. Spring在启动的时候会去==扫描在XML、JAVAconfig、注解==中需要被Spring管理的==Bean信息==，随后会将这些信息封装成==BeanDefinition==，最后把他们放到一个==BeanDefinitionMap==中，这个Map的key是BeanName，value是BeanDefinition对象，到这里就是吧定义的==元数据==加载起来，真正的对象还没实例化
+
+
+
+2. 接着会遍历这个BeanDefinitionMap，执行==BeanFactoryPostProcessor这个Bean工厂的后置处理器==
+
+   //比如我们我们平时定义的占位符，就是通过BeanFactoryPostProcessor的子类PropertyPlaceholderConfigurer进行注入的
+
+   //当然这里我们可以使用我们自定义的BeanFactoryPostProcessor来对我们定义好的Bean元数据进行获取和修改。很少用
+
+   
+
+3. 后置处理器执行完了就到了实例化对象了
+
+   ==在Spring里是通过反射来实现实例化对象的==，一般会反射选择合适的构造器来实例化对象，但是这里实例化只是创建对象，对象具体的属性还是没有实例化的，比如我的对象是 用户service，那它依赖的 SendService对象这时候还是null的
+
+
+
+4. 所以下一步就是注入对象的属性，再往下就是初始化工作了
+
+   首先会判断该Bean是否实现了Aware相关的接口，如果存在就会填充相关资源。
+
+   
+
+5. Aware的相关接口处理完就会到BeanPostProcessor后置处理器，BeanPostProcessor后置处理器有两个方法，before 、after，
+
+   //这个BeanPostProcessor后置处理器是AOP实现的关键，关键子类是AnnottationAwareAspectJAutoProxyCreator
+
+   此时会执行BeanPostProcessor相关子类的before方法，执行完后，接着会执行init相关方法，
+
+   //比如	@PostConstruct、实现InitializingBean接口、定义的init-method方法,去他们官网查看了他们的执行顺序分别是：@PostConstruct、实现了InitializingBean接口以及init-method方法
+
+   等到init方法执行完之后就会执行BeanPostProcessor的after方法。此时基本流程走完，我们就可以获取到对象去使用了
+
+>>>>>>> 4df259e0e3151344679740ab317073b7b8754dc3
    
 
 6. 销毁就去看有没有配置相关destroy方法，执行就完事了
@@ -194,4 +232,41 @@ ApplicationContext在启动的时候就==把所有的Bean全部实例化了==。
 
 
 
+<<<<<<< HEAD
+=======
+
+
+### BeanFactory和ApplicationContext的区别？
+
+**BeanFactory：**
+
+是Spring里面最低层的接口，提供了最简单的容器的功能，只提供了==实例化对象和拿对象==的功能；
+
+ 
+
+**ApplicationContext：**
+
+应用上下文，继承BeanFactory接口，它是Spring的一各更高级的容器，提供了更多的有用的功能；
+
+1) 国际化（MessageSource）
+
+2) 访问资源，如URL和文件（ResourceLoader）
+
+3) 载入多个（有继承关系）上下文 ，使得每一个上下文都专注于一个特定的层次，比如应用的web层  
+
+4) 消息发送、响应机制（ApplicationEventPublisher）
+
+5) AOP（拦截器）
+
+
+
+**两者装载bean的区别**
+
+BeanFactory在启动的时候不会去实例化Bean，只有从容器中拿Bean的时候才会去实例化
+
+ApplicationContext在启动的时候就把所有的Bean全部实例化了。它还可以为Bean配置lazy-init=true来让Bean延迟实例化
+
+
+
+>>>>>>> 4df259e0e3151344679740ab317073b7b8754dc3
 ###### 建议web应用，在启动的时候就把所有的Bean都加载了。（把费时的操作放到系统启动中完成） 

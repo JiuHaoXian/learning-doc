@@ -8,7 +8,7 @@ ${}是字符串替换，#{}是预处理；
 
 > 详细的工作原理请参考这篇文章：https://blog.csdn.net/a745233700/article/details/89308762
 
-Mapper 接口的工作原理是JDK动态代理，Mybatis运行时会使用JDK动态代理为Mapper接口生成代理对象proxy，代理对象会拦截接口方法，根据类的全限定名+方法名，唯一定位到一个MapperStatement并调用执行器执行所代表的sql，然后将sql执行结果返回
+Mapper 接口的工作原理是==JDK动态代理==，Mybatis运行时会使用JDK动态代理为Mapper接口生成代理对象proxy，代理对象会拦截接口方法，根据类的全限定名+方法名，唯一定位到一个MapperStatement并调用执行器执行所代表的sql，然后将sql执行结果返回
 
 
 
